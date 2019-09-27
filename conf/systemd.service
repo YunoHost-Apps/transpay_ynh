@@ -1,0 +1,14 @@
+[Unit]
+Description=Donation platform
+After=network.target
+
+[Service]
+User=__APP__
+Group=__APP__
+Type=simple
+WorkingDirectory=__FINALPATH__
+ExecStart=__FINALPATH__/venv/bin/gunicorn app:app -b 127.0.0.1:__PORT__
+ExecStop=/usr/bin/pkill gunicorn
+
+[Install]
+WantedBy=multi-user.target

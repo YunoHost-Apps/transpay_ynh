@@ -1,0 +1,5 @@
+SOURCE_URL=https://gitlab.kokakiwi.net/transposees/transpay/-/archive/master/transpay-1172ad477bb4e1ef775f9a0fd20774bcf95bed8b.tar.gz
+SOURCE_FILENAME=transpay-1172ad477bb4e1ef775f9a0fd20774bcf95bed8b.tar.gz
+SOURCE_FORMAT=tar.gz
+SOURCE_SUM=eb349b03876ea82aa8968bad9beda2554916e3e8e96e79341f35839fd68db87d
+SOURCE_SUM_PRG=sha256sum

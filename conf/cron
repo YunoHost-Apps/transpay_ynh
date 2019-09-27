@@ -1,0 +1,1 @@
+0 0 * * * cd __FINALPATH__ && __FINALPATH__/venv/bin/python cronjob.py >> /var/log/__APP__/cron.log 2>&1

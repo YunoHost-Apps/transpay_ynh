@@ -1,0 +1,188 @@
+#!/bin/bash
+
+#=================================================
+# GENERIC START
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
+
+source _common.sh
+source /usr/share/yunohost/helpers
+
+
+#=================================================
+# MANAGE SCRIPT FAILURE
+#=================================================
+
+ynh_clean_setup () {
+	ynh_clean_check_starting
+}
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
+
+
+#=================================================
+# RETRIEVE ARGUMENTS FROM THE MANIFEST
+#=================================================
+
+domain=$YNH_APP_ARG_DOMAIN
+path_url="/"
+display_name=$YNH_APP_ARG_DISPLAY_NAME
+goal=$YNH_APP_ARG_GOAL
+goal=$(($goal * 100)) # convert to cents, c.f. conf file
+liberapay_campaign=$YNH_APP_ARG_LIBERAPAY_CAMPAIGN
+stripe_secret=$YNH_APP_ARG_STRIPE_SECRET
+stripe_publish=$YNH_APP_ARG_STRIPE_PUBLISH
+
+app=$YNH_APP_INSTANCE_NAME
+
+
+#=================================================
+# CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
+#=================================================
+ynh_script_progression --message="Validating installation parameters..."
+
+final_path="/var/www/$app"
+test ! -e "$final_path" || ynh_die --message="$app already exists"
+
+# Register (book) web path
+ynh_webpath_register --app="$app" --domain="$domain" --path_url="$path_url"
+
+
+#=================================================
+# STORE SETTINGS FROM MANIFEST
+#=================================================
+ynh_script_progression --message="Storing installation settings..."
+
+ynh_app_setting_set --app="$app" --key=domain --value="$domain"
+ynh_app_setting_set --app="$app" --key=path --value="$path_url"
+ynh_app_setting_set --app="$app" --key=display_name --value="$display_name"
+ynh_app_setting_set --app="$app" --key=goal --value="$goal"
+ynh_app_setting_set --app="$app" --key=liberapay_campaign --value="$liberapay_campaign"
+ynh_app_setting_set --app="$app" --key=stripe_secret --value="$stripe_secret"
+ynh_app_setting_set --app="$app" --key=stripe_publish --value="$stripe_publish"
+
+
+#=================================================
+# FIND AND OPEN A PORT
+#=================================================
+ynh_script_progression --message="Searching for a usable port..."
+
+# Find a free port
+port=$(ynh_find_port 5000)
+ynh_app_setting_set $app port $port
+
+
+#=================================================
+# INSTALL DEPENDENCIES
+#=================================================
+ynh_script_progression --message="Installing dependencies..."
+
+ynh_install_app_dependencies $pkg_dependencies
+
+
+#=================================================
+# DOWNLOAD, CHECK AND UNPACK SOURCE
+#=================================================
+ynh_script_progression --message="Setting up source files..."
+
+ynh_app_setting_set $app final_path $final_path
+# Download, check integrity, uncompress and patch the source from app.src
+ynh_setup_source "$final_path"
+
+
+#=================================================
+# SETUP VIRTUALENV
+#=================================================
+ynh_script_progression --message="Setting up virtualenv..."
+
+pushd $final_path
+	virtualenv -p python3 venv
+    venv/bin/pip install -r requirements.txt
+popd
+
+
+#=================================================
+# CREATE DEDICATED USER
+#=================================================
+ynh_script_progression --message="Configuring system user and permissions..."
+
+# Create a system user
+ynh_system_user_create $app
+user_password=$(openssl rand -hex 16)
+echo -e "$user_password\n$user_password" | passwd $app 2>/dev/null
+
+
+#=================================================
+# CONFIGURE THE APPLICATION
+#=================================================
+ynh_script_progression --message="Configuring and building the application..."
+
+secret=$(openssl rand -hex 16)
+export domain
+export app
+export display_name
+export goal
+export liberapay_campaign
+export stripe_secret
+export stripe_publish
+export final_path
+export port
+export secret
+export user_password
+ynh_render_template ../conf/config.ini.j2 $final_path/config.ini
+
+pushd $final_path
+    make
+popd
+
+# Set this user as owner of /var/www/$app
+chown -R $app:www-data $final_path
+
+#=================================================
+# NGINX CONFIGURATION
+#=================================================
+ynh_script_progression --message="Configuring nginx..."
+
+# Create a dedicated nginx config
+ynh_add_nginx_config
+
+#=================================================
+# SETUP SYSTEMD
+#=================================================
+ynh_script_progression --message="Configuring systemd service..."
+
+# Create a dedicated systemd config
+ynh_replace_string "__PORT__" "$port" "../conf/systemd.service"
+ynh_add_systemd_config
+ynh_systemd_action --service_name=$app --action="start"
+
+
+#=================================================
+# SETUP SYSTEMD
+#=================================================
+ynh_script_progression --message="Configuring cron job..."
+
+# Create a dedicated systemd config
+ynh_replace_string "__FINALPATH__" "$final_path" "../conf/cron"
+ynh_replace_string "__APP__" "$app" "../conf/cron"
+
+cp ../conf/cron /etc/cron.d/transpay
+
+
+#=================================================
+# SETUP SSOWAT
+#=================================================
+ynh_script_progression --message="Configuring SSOwat..." --weight=1
+
+ynh_app_setting_set "$app" unprotected_uris "/"
+
+
+#=================================================
+# RELOAD NGINX
+#=================================================
+ynh_script_progression --message="Reloading nginx web server..." --weight=1
+
+ynh_systemd_action --action=reload --service_name=nginx
+
+ynh_script_progression --message="Installation of $app completed" --last

@@ -1,0 +1,81 @@
+[dev]
+# Change this to the actual location of your site
+# You can include a path in the domain if it's a subdirectory
+# i.e. domain=example.com/donate
+# omit the trailing slash
+# don't forget to set 'protocol' to 'https' after testing with test server command 
+protocol=https
+domain={{ domain }}
+# Change this value to something random and secret.
+# You can generate a secure value using `openssl rand -base64 45`
+secret-key={{ secret }}
+
+# On debug server, this lets you choose what to bind to
+debug-host=0.0.0.0
+debug-port={{ port }}
+
+# Would you like to use unstable versions ?
+# "stable" for stable, "unstable" for unstable
+branch=stable
+
+# Fill out these details with your mail server
+smtp-host=localhost
+smtp-port=25
+smtp-user={{ app }}
+smtp-password={{ user_password }}
+smtp-from={{ app }}@{{ domain }}
+
+# Your information
+your-name={{ display_name }}
+your-email=root@{{ domain }}
+# ^ to show your logo in the index page, you can have a gravatar account associated with this email adress
+# else, you can add your 'logo.png' to the 'static' folder !
+
+# SQL connection string
+connection-string=sqlite+pysqlite:///transpay.db
+
+# Stripe API info: https://dashboard.stripe.com/account/apikeys
+stripe-secret={{ stripe_secret }}
+stripe-publish={{ stripe_publish }}
+
+# Language to use
+# "en" for english, "fr" for french
+locale=en
+
+# Currency to use
+# "usd" for dollar, "eur" for euro
+# refer to stripe documentation for details : https://stripe.com/docs/currencies
+currency=eur
+
+# Separate with spaces
+default-amounts=3 5 10 20
+# Which one to pick when they arrive?
+default-amount=5
+
+# Pick between "monthly" and "once"
+default-type=monthly
+
+# Display monthly donations publicly
+public-income=yes
+
+# How much are you hoping to earn monthly, in cents
+goal={{ goal }}
+
+# Optional Patreon integration
+# Register a client here: https://www.patreon.com/portal/registration/register-clients
+# And put in the "Creator's Access Token" here:
+patreon-access-token=
+# And the "Creator's Refresh Token" here:
+patreon-refresh-token=
+# Client ID
+patreon-client-id=
+# Client secret
+patreon-client-secret=
+# And the Patreon campaign you want to connect with:
+patreon-campaign=
+
+# Optional LiberaPay integration, fill in your username here
+liberapay-campaign={{ liberapay_campaign }}
+
+# Command to reload transpay (send it a SIGHUP)
+reload-command=kill -HUP $(pgrep -xf '/usr/bin/python3.*app.py' | tail -n 1)

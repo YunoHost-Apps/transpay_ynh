@@ -1,0 +1,89 @@
+{
+    "name": "Transpay",
+    "id": "transpay",
+    "packaging_format": 1,
+    "version": "2.1~ynh1",
+    "description": {
+        "en": "Interface to receive and manage donations with Stripe.",
+        "fr": "Interface pour recevoir et gérer des dons avec Stripe"
+    },
+    "license": "MIT",
+    "maintainer": {
+        "name": "alexAubin",
+        "email": "alex.aubin@mailoo.org"
+    },
+    "requirements": {
+        "yunohost": ">= 3.6.0"
+    },
+    "multi_instance": false,
+    "services": [
+        "nginx"
+    ],
+    "arguments": {
+        "install" : [
+            {
+                "name": "domain",
+                "type": "domain",
+                "ask": {
+                    "en": "Choose a domain for Transpay",
+                    "fr": "Choisissez un domaine pour Transpay"
+                },
+                "example": "donate.domain.tld"
+            },
+            {
+                "name": "display_name",
+                "type": "string",
+                "ask": {
+                    "en": "What's the name of the project to display on the page ?",
+                    "fr": "Quel est le nom du projet à afficher sur la page ?"
+                },
+                "default": "Foo Bar"
+            },
+            {   
+                "name": "goal",
+                "type": "number",
+                "ask": {
+                    "en": "How much are you hoping to earn monthly ? (in Euros)",
+                    "fr": "Combien esperez-vous gagner par mois ? (en Euros)"
+                },
+                "example": 100
+            },
+            {
+                "name": "liberapay_campaign",
+                "type": "string",
+                "ask": {
+                    "en": "(Optionnal) Username on Liberapay",
+                    "fr": "(Optionnel) Nom d'utilisateur Liberapay"
+                },
+                "example": "foobar",
+                "optional": "True"
+            },
+            {
+                "name": "stripe_secret",
+                "type": "string",
+                "ask": {
+                    "en": "Stripe API secret token",
+                    "fr": "Jeton secret pour l'API de Stripe"
+                },
+                "help": {
+                    "en": "https://dashboard.stripe.com/account/apikeys",
+                    "fr": "https://dashboard.stripe.com/account/apikeys"
+                },
+                "example": "abcdef1234567890"
+            },
+            {
+                "name": "stripe_publish",
+                "type": "string",
+                "ask": {
+                    "en": "Stripe API publish token",
+                    "fr": "Jeton publish pour l'API de Stripe"
+                },
+                "help": {
+                    "en": "https://dashboard.stripe.com/account/apikeys",
+                    "fr": "https://dashboard.stripe.com/account/apikeys"
+                },
+                "example": "abcdef1234567890"
+            }
+        ]
+    }
+}
