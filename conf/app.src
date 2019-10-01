@@ -1,5 +1,5 @@
-SOURCE_URL=https://gitlab.kokakiwi.net/transposees/transpay/-/archive/master/transpay-1172ad477bb4e1ef775f9a0fd20774bcf95bed8b.tar.gz
-SOURCE_FILENAME=transpay-1172ad477bb4e1ef775f9a0fd20774bcf95bed8b.tar.gz
+SOURCE_URL=https://gitlab.kokakiwi.net/transposees/transpay/-/archive/3725999d49f4bafa0b38cdb0ef6a625dc451bb5b/transpay.tar.gz
+SOURCE_FILENAME=transpay-3725999d49f4bafa0b38cdb0ef6a625dc451bb5b.tar.gz
 SOURCE_FORMAT=tar.gz
-SOURCE_SUM=eb349b03876ea82aa8968bad9beda2554916e3e8e96e79341f35839fd68db87d
+SOURCE_SUM=7df60a1e3bce81dbdf9dad251aaf843f777b88927315dab407c5fb5f587e0216
 SOURCE_SUM_PRG=sha256sum
